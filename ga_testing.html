@@ -1,0 +1,95 @@
+<HTML>
+<body>
+
+</body>
+
+<script src="https://app.certainly.io/sdk/webchat.js">
+</script>
+
+<script>
+widgetSwitchConfig = {
+	//botId: "e04e927a-c2ea-4264-81f0-371926bcf599", // The deployment ID of the chatbot which you wish to enable on your site
+	botId: "58f94646-f19e-4795-94f6-91f8d4f29834",
+	webchatKey: "BotXO", // A unique identified for the instance of the BotXO Widget
+	// handoverModuleId: "523564", // The module ID which will trigger the handover from BotXO to LiveAgent
+	// takeoverModuleId: "523561", // The module from which the BotXO Widget will resume the conversation after the LiveAgent chat has been ended
+	handoverModuleId: "521033", // The module ID which will trigger the handover from BotXO to Zendesk
+	takeoverModuleId: "281197",
+	LiveAgentHumanDepartment: "CS_Agent_Department"	// The department under which your human agents operate on LiveAgent
+}
+
+initCertainlyWidget({
+  id: "58f94646-f19e-4795-94f6-91f8d4f29834",
+  mode: "clear_past_conversations",
+  webchatKey: widgetSwitchConfig.webchatKey,
+
+});
+// Here you can customize the switch between BotXO and LiveAgent for your own use case
+
+certainly.getCertainlyTransfer({
+  actionName: widgetSwitchConfig.handoverModuleId,
+  webchatKey: widgetSwitchConfig.webchatKey,
+  callback: (data) => handoverToLiveAgent(data) // The data object contains information such as the latest visitor message and custom variables
+
+});
+
+function handoverToLiveAgent(data) {
+
+	certainly.widgetStatus(
+			{
+				action: "hide",
+				webchatKey: widgetSwitchConfig.webchatKey, // Required 
+			}
+		);
+
+	(function(d, src, c) { var t=d.scripts[d.scripts.length - 1],s=d.createElement('script');s.id='la_x2s6df8d';s.async=true;s.src=src;s.onload=s.onreadystatechange=function(){var rs=this.readyState;if(rs&&(rs!='complete')&&(rs!='loaded')){return;}c(this);};t.parentElement.insertBefore(s,t.nextSibling);})(document,'https://certainly3.ladesk.com/scripts/track.js',
+	function(e){ 
+		LiveAgent.clearAllUserDetails();
+	  	LiveAgent.setUserDetails('ansh.ch22@gmail.com', 'Anshul');
+	  	var mybutton = LiveAgent.createButton('0qf9qwv1', e);
+		// mybutton.oldOnClick = mybutton.onClick;
+		mybutton.oldOnCloseFunction_ = mybutton.onCloseFunction_;
+		// mybutton.onClick = function() {
+		//     mybutton.oldOnClick(); 
+		     //here is your code after chat is started, e.g. measure the size of chat window
+		// }
+		mybutton.onCloseFunction_ = function() {
+			//mybutton.oldOnCloseFunction_();
+			showChat()
+
+		    certainly.goTo(
+			  {
+			    module: widgetSwitchConfig.takeoverModuleId, // "281197"
+			    webchatKey: widgetSwitchConfig.webchatKey,
+			  }
+    		);
+		    console.log(widgetSwitchConfig.takeoverModuleId)
+		 }
+		 setTimeout(function(){ document.getElementById(mybutton.buttonDiv.id).click();}, 1000);
+
+	});
+}
+
+function storeInfo(data){
+    setTimeout(function() {
+    console.log("done")
+    }, 1000);
+}
+
+function showChat(){
+    certainly.widgetStatus(
+    {
+        action: "show",
+        webchatKey: widgetSwitchConfig.webchatKey
+    });
+}
+
+function clearBotXOHistory(){
+    localStorage.clear();
+}
+</script>
+
+
+
+</HTML> 
+
